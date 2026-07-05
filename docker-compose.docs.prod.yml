@@ -1,0 +1,14 @@
+# Documentation — production environment.
+# Uses pre-built image from the container registry.
+# Usage: docker compose -f docker-compose.docs.prod.yml up -d
+
+services:
+  docs:
+    image: registry.example.com/lmbek-hobby-docs:latest
+    restart: always
+    networks:
+      - hobby-net
+
+networks:
+  hobby-net:
+    driver: bridge

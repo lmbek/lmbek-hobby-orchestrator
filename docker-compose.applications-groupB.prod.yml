@@ -1,0 +1,14 @@
+# Application Services (Group B) — production environment.
+# Uses pre-built images from the container registry with production tags.
+# Usage: docker compose -f docker-compose.applications-groupB.prod.yml up -d
+
+services:
+  placeholder2-service:
+    image: registry.example.com/lmbek-hobby-placeholder2-service:latest
+    restart: always
+    networks:
+      - hobby-net
+
+networks:
+  hobby-net:
+    driver: bridge

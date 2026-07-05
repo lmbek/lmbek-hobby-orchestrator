@@ -1,0 +1,15 @@
+# Traefik static configuration
+entryPoints:
+  web:
+    address: ":80"
+
+api:
+  dashboard: true
+  insecure: true
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: hobby-net
+  file:
+    filename: /etc/traefik/dynamic.yml

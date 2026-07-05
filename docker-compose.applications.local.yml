@@ -1,0 +1,27 @@
+# Application Services — local environment.
+# Builds from source for local development.
+# Usage: docker compose -f docker-compose.applications.local.yml up -d --build
+
+services:
+  placeholder1-service:
+    image: lmbek-hobby-placeholder1-service:latest
+    build:
+      context: ../applications/placeholder1-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - hobby-net
+
+  placeholder2-service:
+    image: lmbek-hobby-placeholder2-service:latest
+    build:
+      context: ../applications/placeholder2-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - hobby-net
+
+networks:
+  hobby-net:
+    external: true
+    name: orchestrators_hobby-net

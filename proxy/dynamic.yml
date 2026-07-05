@@ -1,0 +1,48 @@
+# Traefik dynamic configuration — file-based routes
+http:
+  routers:
+    placeholder1:
+      rule: "PathPrefix(`/api/placeholder1`)"
+      service: placeholder1
+      entryPoints:
+        - web
+
+    placeholder2:
+      rule: "PathPrefix(`/api/placeholder2`)"
+      service: placeholder2
+      entryPoints:
+        - web
+
+    docs:
+      rule: "PathPrefix(`/docs`)"
+      service: docs
+      entryPoints:
+        - web
+
+    proxy-homepage:
+      rule: "PathPrefix(`/`)"
+      service: proxy-homepage
+      entryPoints:
+        - web
+      priority: 1
+
+  services:
+    placeholder1:
+      loadBalancer:
+        servers:
+          - url: "http://placeholder1-service:8080"
+
+    placeholder2:
+      loadBalancer:
+        servers:
+          - url: "http://placeholder2-service:8080"
+
+    docs:
+      loadBalancer:
+        servers:
+          - url: "http://docs:80"
+
+    proxy-homepage:
+      loadBalancer:
+        servers:
+          - url: "http://proxy-homepage:80"

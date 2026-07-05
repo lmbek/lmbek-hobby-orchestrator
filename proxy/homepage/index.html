@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMBEK Hobby Platform</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { max-width: 640px; width: 100%; padding: 2rem; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #f8fafc; }
+    p.subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .services { display: flex; flex-direction: column; gap: 0.75rem; }
+    a.service { display: block; padding: 1rem 1.25rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; color: #e2e8f0; text-decoration: none; transition: background 0.15s, border-color 0.15s; }
+    a.service:hover { background: #334155; border-color: #475569; }
+    a.service .name { font-weight: 600; }
+    a.service .desc { font-size: 0.875rem; color: #94a3b8; margin-top: 0.25rem; }
+    .footer { margin-top: 2rem; font-size: 0.8rem; color: #475569; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LMBEK Hobby Platform</h1>
+    <p class="subtitle">Local development gateway — all traffic is routed through Traefik.</p>
+    <div class="services">
+      <a class="service" href="/api/placeholder1/">
+        <div class="name">Placeholder1 Service</div>
+        <div class="desc">/api/placeholder1/</div>
+      </a>
+      <a class="service" href="/api/placeholder2/">
+        <div class="name">Placeholder2 Service</div>
+        <div class="desc">/api/placeholder2/</div>
+      </a>
+      <a class="service" href="/docs/">
+        <div class="name">Documentation</div>
+        <div class="desc">/docs/ — Architecture diagrams (LikeC4)</div>
+      </a>
+      <a class="service" href="/dashboard/">
+        <div class="name">Traefik Dashboard</div>
+        <div class="desc">/dashboard/ — Proxy routing and health</div>
+      </a>
+    </div>
+    <div class="footer">Reverse proxy powered by Traefik</div>
+  </div>
+</body>
+</html>

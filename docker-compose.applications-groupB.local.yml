@@ -1,0 +1,19 @@
+# Application Services (Group B) — local environment.
+# Builds from source for local development.
+# Team B can run only their services without needing Group A.
+# Usage: docker compose -f docker-compose.applications-groupB.local.yml up -d --build
+
+services:
+  placeholder2-service:
+    image: lmbek-hobby-placeholder2-service:latest
+    build:
+      context: ../applications/placeholder2-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - hobby-net
+
+networks:
+  hobby-net:
+    external: true
+    name: orchestrators_hobby-net

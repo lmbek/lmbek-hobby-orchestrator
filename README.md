@@ -4,31 +4,40 @@ Per-grouping Docker Compose files that wire all services together. Each grouping
 
 ## Quick Start (Local)
 
-Start the proxy (creates the shared network):
+The easiest way is with `make`:
+
+```bash
+make all          # Start everything (proxy → apps → docs)
+make all-down     # Stop everything
+make status       # Show what's running
+make help         # List all available targets
+```
+
+Or start individual groupings:
+
+```bash
+make proxy-up     # Traefik reverse proxy (creates the shared network)
+make apps-up      # All application services
+make group-a-up   # Group A only (Team A)
+make group-b-up   # Group B only (Team B)
+make docs-up      # Documentation site
+```
+
+Override the environment for staging or production:
+
+```bash
+make apps-up ENV=stage
+make apps-up ENV=prod
+```
+
+<details>
+<summary>Without Make (raw docker compose commands)</summary>
 
 ```bash
 docker compose -f docker-compose.proxy.local.yml up -d
-```
-
-Start all application services:
-
-```bash
 docker compose -f docker-compose.applications.local.yml up -d --build
-```
-
-Or start only the group your team works on:
-
-```bash
-# Team A
 docker compose -f docker-compose.applications-groupA.local.yml up -d --build
-
-# Team B
 docker compose -f docker-compose.applications-groupB.local.yml up -d --build
-```
-
-Start documentation:
-
-```bash
 docker compose -f docker-compose.docs.local.yml up -d --build
 ```
 
@@ -39,6 +48,33 @@ docker compose -f docker-compose.proxy.local.yml down
 docker compose -f docker-compose.applications.local.yml down
 docker compose -f docker-compose.docs.local.yml down
 ```
+
+</details>
+
+## Makefile Targets
+
+Run `make help` to see all targets. Key ones:
+
+| Target | Description |
+|--------|-------------|
+| `make all` | Start the full stack (proxy → apps → docs) |
+| `make all-down` | Stop everything (reverse order) |
+| `make all-restart` | Restart the full stack |
+| `make proxy-up/down/restart` | Manage the Traefik proxy |
+| `make apps-up/down/restart` | Manage all application services |
+| `make group-a-up/down/restart` | Manage Group A services |
+| `make group-b-up/down/restart` | Manage Group B services |
+| `make docs-up/down/restart` | Manage the documentation site |
+| `make status` | Show running containers across all groupings |
+| `make *-logs` | Tail logs for any grouping |
+| `make *-ps` | Show containers for any grouping |
+| `make *-build` | Build images (local only) |
+| `make validate` | Validate all compose files |
+| `make clean` | Stop everything and remove volumes/images |
+| `make pull` | Pull latest images (stage/prod) |
+| `make network` | Create the shared network (idempotent) |
+
+All targets default to `ENV=local`. Override with `ENV=stage` or `ENV=prod`.
 
 ## Compose Files
 

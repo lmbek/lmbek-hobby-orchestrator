@@ -18,8 +18,6 @@ GREEN := \033[32m
 BOLD  := \033[1m
 RESET := \033[0m
 
-# Always build from source for local development.
-BUILD_FLAG := --build
 
 # ════════════════════════════════════════════════════════════
 #  All — bring up / tear down the full local stack
@@ -76,7 +74,7 @@ proxy-logs: ## Tail proxy logs
 .PHONY: apps-up
 apps-up: ## Start all application services
 	@printf "$(CYAN)▶ Starting applications …$(RESET)\n"
-	docker compose -f $(APPS_FILE) up -d --remove-orphans $(BUILD_FLAG)
+	docker compose -f $(APPS_FILE) up -d --remove-orphans
 
 .PHONY: apps-down
 apps-down: ## Stop all application services
@@ -89,9 +87,6 @@ apps-restart: apps-down apps-up ## Restart all application services
 apps-logs: ## Tail application logs
 	docker compose -f $(APPS_FILE) logs -f --tail=50
 
-.PHONY: apps-build
-apps-build: ## Build all application images
-	docker compose -f $(APPS_FILE) build
 
 # ════════════════════════════════════════════════════════════
 #  Single service  (e.g. make service-up S=placeholder1-service)
@@ -101,7 +96,7 @@ apps-build: ## Build all application images
 service-up: ## Start one service          (S=<name>)
 	@test -n "$(S)" || (printf "Usage: make service-up S=<service-name>\n" && exit 1)
 	@printf "$(CYAN)▶ Starting $(S) …$(RESET)\n"
-	docker compose -f $(APPS_FILE) up -d --remove-orphans $(BUILD_FLAG) $(S)
+	docker compose -f $(APPS_FILE) up -d --remove-orphans $(S)
 
 .PHONY: service-down
 service-down: ## Stop one service           (S=<name>)
@@ -116,10 +111,6 @@ service-logs: ## Tail logs for one service  (S=<name>)
 	@test -n "$(S)" || (printf "Usage: make service-logs S=<service-name>\n" && exit 1)
 	docker compose -f $(APPS_FILE) logs -f --tail=50 $(S)
 
-.PHONY: service-build
-service-build: ## Build one service image    (S=<name>)
-	@test -n "$(S)" || (printf "Usage: make service-build S=<service-name>\n" && exit 1)
-	docker compose -f $(APPS_FILE) build $(S)
 
 # ════════════════════════════════════════════════════════════
 #  Docs
@@ -128,7 +119,7 @@ service-build: ## Build one service image    (S=<name>)
 .PHONY: docs-up
 docs-up: ## Start the documentation site
 	@printf "$(CYAN)▶ Starting docs …$(RESET)\n"
-	docker compose -f $(DOCS_FILE) up -d --remove-orphans $(BUILD_FLAG)
+	docker compose -f $(DOCS_FILE) up -d --remove-orphans
 
 .PHONY: docs-down
 docs-down: ## Stop the documentation site
@@ -141,9 +132,6 @@ docs-restart: docs-down docs-up ## Restart the documentation site
 docs-logs: ## Tail docs logs
 	docker compose -f $(DOCS_FILE) logs -f --tail=50
 
-.PHONY: docs-build
-docs-build: ## Build docs image
-	docker compose -f $(DOCS_FILE) build
 
 # ════════════════════════════════════════════════════════════
 #  Monitoring

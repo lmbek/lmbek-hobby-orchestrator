@@ -4,55 +4,475 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LMBEK Hobby Platform</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --bg-primary: #050a18;
+      --bg-secondary: #0a1628;
+      --bg-card: #0d1b2e;
+      --bg-card-hover: #122240;
+      --border: #1a2d4a;
+      --border-hover: #2a4a7a;
+      --text-primary: #f0f4fc;
+      --text-secondary: #8899b8;
+      --text-muted: #4a5f82;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --glow-blue: rgba(59, 130, 246, 0.15);
+      --glow-purple: rgba(139, 92, 246, 0.15);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .container { max-width: 640px; width: 100%; padding: 2rem; }
-    h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #f8fafc; }
-    p.subtitle { color: #94a3b8; margin-bottom: 2rem; }
-    .services { display: flex; flex-direction: column; gap: 0.75rem; }
-    a.service { display: block; padding: 1rem 1.25rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; color: #e2e8f0; text-decoration: none; transition: background 0.15s, border-color 0.15s; }
-    a.service:hover { background: #334155; border-color: #475569; }
-    a.service .name { font-weight: 600; }
-    a.service .desc { font-size: 0.875rem; color: #94a3b8; margin-top: 0.25rem; }
-    .footer { margin-top: 2rem; font-size: 0.8rem; color: #475569; text-align: center; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-effects {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-effects::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+      animation: bgShift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgShift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-2%, 3%) scale(1.02); }
+      100% { transform: translate(2%, -2%) scale(1); }
+    }
+
+    /* Grid pattern overlay */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* Main content */
+    .main {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.25), 0 0 60px rgba(139, 92, 246, 0.1);
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(59, 130, 246, 0.25), 0 0 60px rgba(139, 92, 246, 0.1); }
+      50% { box-shadow: 0 8px 48px rgba(59, 130, 246, 0.35), 0 0 80px rgba(139, 92, 246, 0.2); }
+    }
+
+    .logo-container svg {
+      width: 40px;
+      height: 40px;
+      fill: white;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 50%, var(--accent-purple) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientText 6s ease infinite;
+      margin-bottom: 0.75rem;
+    }
+
+    @keyframes gradientText {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .header .subtitle {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Section titles */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* Service cards */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .service-card {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      animation: fadeInUp 0.6s ease-out both;
+    }
+
+    .service-card:nth-child(1) { animation-delay: 0.1s; }
+    .service-card:nth-child(2) { animation-delay: 0.15s; }
+    .service-card:nth-child(3) { animation-delay: 0.2s; }
+    .service-card:nth-child(4) { animation-delay: 0.25s; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(135deg, transparent 40%, var(--card-accent, var(--accent-blue)) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .service-card:hover::before { opacity: 0.5; }
+
+    .service-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px var(--card-glow, var(--glow-blue));
+    }
+
+    .service-icon {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      background: var(--icon-bg, rgba(59, 130, 246, 0.1));
+      border: 1px solid var(--icon-border, rgba(59, 130, 246, 0.15));
+    }
+
+    .service-info { flex: 1; min-width: 0; }
+
+    .service-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .service-name .arrow {
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all 0.2s ease;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .service-card:hover .service-name .arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .service-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .service-url {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* Card color variants */
+    .card-blue { --card-accent: var(--accent-blue); --card-glow: var(--glow-blue); --icon-bg: rgba(59, 130, 246, 0.1); --icon-border: rgba(59, 130, 246, 0.15); }
+    .card-purple { --card-accent: var(--accent-purple); --card-glow: var(--glow-purple); --icon-bg: rgba(139, 92, 246, 0.1); --icon-border: rgba(139, 92, 246, 0.15); }
+    .card-cyan { --card-accent: var(--accent-cyan); --card-glow: rgba(6, 182, 212, 0.15); --icon-bg: rgba(6, 182, 212, 0.1); --icon-border: rgba(6, 182, 212, 0.15); }
+    .card-emerald { --card-accent: var(--accent-emerald); --card-glow: rgba(16, 185, 129, 0.15); --icon-bg: rgba(16, 185, 129, 0.1); --icon-border: rgba(16, 185, 129, 0.15); }
+    .card-amber { --card-accent: var(--accent-amber); --card-glow: rgba(245, 158, 11, 0.15); --icon-bg: rgba(245, 158, 11, 0.1); --icon-border: rgba(245, 158, 11, 0.15); }
+    .card-rose { --card-accent: var(--accent-rose); --card-glow: rgba(244, 63, 94, 0.15); --icon-bg: rgba(244, 63, 94, 0.1); --icon-border: rgba(244, 63, 94, 0.15); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      animation: fadeInUp 0.8s ease-out 0.5s both;
+    }
+
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-content svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--text-muted);
+    }
+
+    .footer .tech-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tech-badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .main { padding: 2rem 1rem 3rem; }
+      .header h1 { font-size: 2rem; }
+      .services-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>LMBEK Hobby Platform</h1>
-    <p class="subtitle">Local development gateway — all traffic is routed through Traefik.</p>
-    <div class="services">
-      <a class="service" href="http://placeholder1-service.localhost/">
-        <div class="name">Placeholder1 Service</div>
-        <div class="desc">placeholder1-service.localhost</div>
+  <!-- Animated background effects -->
+  <div class="bg-effects"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- Floating particles (generated via CSS) -->
+  <div class="particle" style="left:10%;width:3px;height:3px;background:rgba(59,130,246,0.4);animation-duration:12s;animation-delay:0s;"></div>
+  <div class="particle" style="left:25%;width:2px;height:2px;background:rgba(139,92,246,0.4);animation-duration:15s;animation-delay:2s;"></div>
+  <div class="particle" style="left:45%;width:4px;height:4px;background:rgba(6,182,212,0.3);animation-duration:18s;animation-delay:4s;"></div>
+  <div class="particle" style="left:65%;width:2px;height:2px;background:rgba(59,130,246,0.5);animation-duration:14s;animation-delay:1s;"></div>
+  <div class="particle" style="left:80%;width:3px;height:3px;background:rgba(139,92,246,0.3);animation-duration:16s;animation-delay:3s;"></div>
+  <div class="particle" style="left:90%;width:2px;height:2px;background:rgba(16,185,129,0.4);animation-duration:13s;animation-delay:5s;"></div>
+  <div class="particle" style="left:35%;width:3px;height:3px;background:rgba(245,158,11,0.3);animation-duration:17s;animation-delay:6s;"></div>
+  <div class="particle" style="left:55%;width:2px;height:2px;background:rgba(59,130,246,0.4);animation-duration:11s;animation-delay:7s;"></div>
+
+  <div class="main">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-container">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          <style>svg path { fill: none; stroke: white; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }</style>
+        </svg>
+      </div>
+      <h1>LMBEK Hobby Platform</h1>
+      <p class="subtitle">Self-hosted development platform — all services routed through a unified reverse proxy</p>
+    </header>
+
+    <!-- Applications -->
+    <div class="section-title">Applications</div>
+    <div class="services-grid">
+      <a class="service-card card-blue" href="http://placeholder1-service.localhost/" target="_blank">
+        <div class="service-icon">🧩</div>
+        <div class="service-info">
+          <div class="service-name">Placeholder1 Service <span class="arrow">→</span></div>
+          <div class="service-desc">Primary application service</div>
+          <div class="service-url">placeholder1-service.localhost</div>
+        </div>
       </a>
-      <a class="service" href="http://placeholder2-service.localhost/">
-        <div class="name">Placeholder2 Service</div>
-        <div class="desc">placeholder2-service.localhost</div>
-      </a>
-      <a class="service" href="http://docs.localhost/">
-        <div class="name">Documentation</div>
-        <div class="desc">docs.localhost — Architecture diagrams (LikeC4)</div>
-      </a>
-      <a class="service" href="http://proxy.localhost/dashboard/">
-        <div class="name">Traefik Dashboard</div>
-        <div class="desc">proxy.localhost — Proxy routing and health</div>
-      </a>
-      <a class="service" href="http://grafana.localhost/">
-        <div class="name">Grafana</div>
-        <div class="desc">grafana.localhost — Dashboards and visualization</div>
-      </a>
-      <a class="service" href="http://prometheus.localhost/">
-        <div class="name">Prometheus</div>
-        <div class="desc">prometheus.localhost — Metrics and alerting</div>
-      </a>
-      <a class="service" href="http://alloy.localhost/">
-        <div class="name">Grafana Alloy</div>
-        <div class="desc">alloy.localhost — Telemetry collector</div>
+      <a class="service-card card-purple" href="http://placeholder2-service.localhost/" target="_blank">
+        <div class="service-icon">🔮</div>
+        <div class="service-info">
+          <div class="service-name">Placeholder2 Service <span class="arrow">→</span></div>
+          <div class="service-desc">Secondary application service</div>
+          <div class="service-url">placeholder2-service.localhost</div>
+        </div>
       </a>
     </div>
-    <div class="footer">Reverse proxy powered by Traefik</div>
+
+    <!-- Observability -->
+    <div class="section-title">Observability &amp; Monitoring</div>
+    <div class="services-grid">
+      <a class="service-card card-amber" href="http://grafana.localhost/" target="_blank">
+        <div class="service-icon">📊</div>
+        <div class="service-info">
+          <div class="service-name">Grafana <span class="arrow">→</span></div>
+          <div class="service-desc">Dashboards, visualization, and alerting</div>
+          <div class="service-url">grafana.localhost</div>
+        </div>
+      </a>
+      <a class="service-card card-rose" href="http://prometheus.localhost/" target="_blank">
+        <div class="service-icon">🔥</div>
+        <div class="service-info">
+          <div class="service-name">Prometheus <span class="arrow">→</span></div>
+          <div class="service-desc">Metrics collection and alerting engine</div>
+          <div class="service-url">prometheus.localhost</div>
+        </div>
+      </a>
+      <a class="service-card card-emerald" href="http://alloy.localhost/" target="_blank">
+        <div class="service-icon">📡</div>
+        <div class="service-info">
+          <div class="service-name">Grafana Alloy <span class="arrow">→</span></div>
+          <div class="service-desc">OpenTelemetry collector and telemetry pipeline</div>
+          <div class="service-url">alloy.localhost</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Infrastructure -->
+    <div class="section-title">Infrastructure</div>
+    <div class="services-grid">
+      <a class="service-card card-cyan" href="http://proxy.localhost/dashboard/" target="_blank">
+        <div class="service-icon">🌐</div>
+        <div class="service-info">
+          <div class="service-name">Traefik Dashboard <span class="arrow">→</span></div>
+          <div class="service-desc">Reverse proxy routing, middleware, and health status</div>
+          <div class="service-url">proxy.localhost/dashboard</div>
+        </div>
+      </a>
+      <a class="service-card card-cyan" href="http://docs.localhost/" target="_blank">
+        <div class="service-icon">📖</div>
+        <div class="service-info">
+          <div class="service-name">Documentation <span class="arrow">→</span></div>
+          <div class="service-desc">Architecture diagrams and system documentation (LikeC4)</div>
+          <div class="service-url">docs.localhost</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Powered by Traefik reverse proxy</span>
+      </div>
+      <div class="tech-badges">
+        <span class="tech-badge">Traefik</span>
+        <span class="tech-badge">Docker</span>
+        <span class="tech-badge">Prometheus</span>
+        <span class="tech-badge">Grafana</span>
+        <span class="tech-badge">LikeC4</span>
+      </div>
+    </footer>
   </div>
 </body>
 </html>

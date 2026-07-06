@@ -1,23 +1,37 @@
 # Traefik dynamic configuration — file-based routes
 http:
+  middlewares:
+    error-pages:
+      errors:
+        status:
+          - "502-504"
+        service: proxy-homepage
+        query: "/503.html"
+
   routers:
     placeholder1:
       rule: "Host(`placeholder1-service.localhost`)"
       service: placeholder1
       entryPoints:
         - web
+      middlewares:
+        - error-pages
 
     placeholder2:
       rule: "Host(`placeholder2-service.localhost`)"
       service: placeholder2
       entryPoints:
         - web
+      middlewares:
+        - error-pages
 
     docs:
       rule: "Host(`docs.localhost`)"
       service: docs
       entryPoints:
         - web
+      middlewares:
+        - error-pages
 
     proxy-homepage:
       rule: "HostRegexp(`localhost`)"
@@ -37,18 +51,24 @@ http:
       service: grafana
       entryPoints:
         - web
+      middlewares:
+        - error-pages
 
     prometheus:
       rule: "Host(`prometheus.localhost`)"
       service: prometheus
       entryPoints:
         - web
+      middlewares:
+        - error-pages
 
     alloy:
       rule: "Host(`alloy.localhost`)"
       service: alloy
       entryPoints:
         - web
+      middlewares:
+        - error-pages
 
 
   services:

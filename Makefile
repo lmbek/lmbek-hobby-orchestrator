@@ -1,27 +1,29 @@
 # ──────────────────────────────────────────────────────────────
 # Orchestrators — Makefile
 # Convenience targets for every Docker Compose grouping.
-# Default environment: local.  Override with ENV=stage|prod.
+# Local development only.  Stage/prod lives in infrastructure/platform.
 # ──────────────────────────────────────────────────────────────
 
 .DEFAULT_GOAL := help
 
-# Environment: local | stage | prod  (default: local)
-ENV ?= local
-
 # ── Compose file mapping ────────────────────────────────────
-PROXY_FILE            := docker-compose.proxy.local.yml
-APPS_FILE             := docker-compose.applications.$(ENV).yml
-APPS_GROUP_A_FILE     := docker-compose.applications-groupA.$(ENV).yml
-APPS_GROUP_B_FILE     := docker-compose.applications-groupB.$(ENV).yml
-DOCS_FILE             := docker-compose.docs.$(ENV).yml
+PROXY_FILE            := docker-compose.proxy.yml
+APPS_FILE             := docker-compose.applications.yml
+APPS_GROUP_A_FILE     := docker-compose.applications-groupA.yml
+APPS_GROUP_B_FILE     := docker-compose.applications-groupB.yml
+DOCS_FILE             := docker-compose.docs.yml
+MONITORING_FILE       := ../observability/docker-compose.yml
 
-# Local builds need --build; stage/prod pull pre-built images.
-ifeq ($(ENV),local)
-  BUILD_FLAG := --build
-else
-  BUILD_FLAG :=
-endif
+# ── Project names (isolate each compose group) ──────────────
+PROXY_PROJECT         := proxy
+APPS_PROJECT          := apps
+APPS_GROUP_A_PROJECT  := group-a
+APPS_GROUP_B_PROJECT  := group-b
+DOCS_PROJECT          := docs
+MONITORING_PROJECT    := monitoring
+
+# Always build from source for local development.
+BUILD_FLAG := --build
 
 # ── Colours (ANSI) ──────────────────────────────────────────
 CYAN  := \033[36m
@@ -34,44 +36,51 @@ RESET := \033[0m
 # ════════════════════════════════════════════════════════════
 
 .PHONY: all
-all: proxy-up apps-up docs-up ## Start everything (proxy → apps → docs)
+all: proxy-up apps-up docs-up monitoring-up ## Start everything (proxy → apps → docs → monitoring)
 
 .PHONY: all-down
-all-down: docs-down apps-down proxy-down ## Stop everything (docs → apps → proxy)
+all-down: monitoring-down docs-down apps-down proxy-down ## Stop everything (monitoring → docs → apps → proxy)
+
+.PHONY: all-down-v
+all-down-v: ## Stop everything and remove volumes
+	docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) down -v
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) down -v
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) down -v
+	docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) down -v
 
 .PHONY: all-restart
 all-restart: all-down all ## Restart the full stack
 
 .PHONY: all-ps
-all-ps: proxy-ps apps-ps docs-ps ## Show containers for all groupings
+all-ps: proxy-ps apps-ps docs-ps monitoring-ps ## Show containers for all groupings
 
 .PHONY: all-logs
 all-logs: ## Tail logs for all groupings (Ctrl-C to stop)
-	@docker compose -f $(PROXY_FILE) -f $(APPS_FILE) -f $(DOCS_FILE) logs -f --tail=50
+	@docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) -f $(APPS_FILE) -f $(DOCS_FILE) logs -f --tail=50
 
 # ════════════════════════════════════════════════════════════
 #  Proxy
 # ════════════════════════════════════════════════════════════
 
 .PHONY: proxy-up
-proxy-up: ## Start the Traefik reverse proxy (creates the shared network)
+proxy-up: network ## Start the Traefik reverse proxy (creates the shared network)
 	@printf "$(CYAN)▶ Starting proxy …$(RESET)\n"
-	docker compose -f $(PROXY_FILE) up -d
+	docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) up -d --remove-orphans
 
 .PHONY: proxy-down
 proxy-down: ## Stop the proxy
-	docker compose -f $(PROXY_FILE) down
+	docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) down
 
 .PHONY: proxy-restart
 proxy-restart: proxy-down proxy-up ## Restart the proxy
 
 .PHONY: proxy-ps
 proxy-ps: ## Show proxy containers
-	docker compose -f $(PROXY_FILE) ps
+	docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) ps
 
 .PHONY: proxy-logs
 proxy-logs: ## Tail proxy logs
-	docker compose -f $(PROXY_FILE) logs -f --tail=50
+	docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) logs -f --tail=50
 
 # ════════════════════════════════════════════════════════════
 #  Applications — all services
@@ -79,27 +88,27 @@ proxy-logs: ## Tail proxy logs
 
 .PHONY: apps-up
 apps-up: ## Start all application services
-	@printf "$(CYAN)▶ Starting all applications ($(ENV)) …$(RESET)\n"
-	docker compose -f $(APPS_FILE) up -d $(BUILD_FLAG)
+	@printf "$(CYAN)▶ Starting all applications …$(RESET)\n"
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) up -d --remove-orphans $(BUILD_FLAG)
 
 .PHONY: apps-down
 apps-down: ## Stop all application services
-	docker compose -f $(APPS_FILE) down
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) down
 
 .PHONY: apps-restart
 apps-restart: apps-down apps-up ## Restart all application services
 
 .PHONY: apps-ps
 apps-ps: ## Show application containers
-	docker compose -f $(APPS_FILE) ps
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) ps
 
 .PHONY: apps-logs
 apps-logs: ## Tail application logs
-	docker compose -f $(APPS_FILE) logs -f --tail=50
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) logs -f --tail=50
 
 .PHONY: apps-build
 apps-build: ## Build all application images (local only)
-	docker compose -f $(APPS_FILE) build
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) build
 
 # ════════════════════════════════════════════════════════════
 #  Applications — Group A
@@ -107,27 +116,27 @@ apps-build: ## Build all application images (local only)
 
 .PHONY: group-a-up
 group-a-up: ## Start Group A services
-	@printf "$(CYAN)▶ Starting Group A ($(ENV)) …$(RESET)\n"
-	docker compose -f $(APPS_GROUP_A_FILE) up -d $(BUILD_FLAG)
+	@printf "$(CYAN)▶ Starting Group A …$(RESET)\n"
+	docker compose -p $(APPS_GROUP_A_PROJECT) -f $(APPS_GROUP_A_FILE) up -d --remove-orphans $(BUILD_FLAG)
 
 .PHONY: group-a-down
 group-a-down: ## Stop Group A services
-	docker compose -f $(APPS_GROUP_A_FILE) down
+	docker compose -p $(APPS_GROUP_A_PROJECT) -f $(APPS_GROUP_A_FILE) down
 
 .PHONY: group-a-restart
 group-a-restart: group-a-down group-a-up ## Restart Group A services
 
 .PHONY: group-a-ps
 group-a-ps: ## Show Group A containers
-	docker compose -f $(APPS_GROUP_A_FILE) ps
+	docker compose -p $(APPS_GROUP_A_PROJECT) -f $(APPS_GROUP_A_FILE) ps
 
 .PHONY: group-a-logs
 group-a-logs: ## Tail Group A logs
-	docker compose -f $(APPS_GROUP_A_FILE) logs -f --tail=50
+	docker compose -p $(APPS_GROUP_A_PROJECT) -f $(APPS_GROUP_A_FILE) logs -f --tail=50
 
 .PHONY: group-a-build
 group-a-build: ## Build Group A images (local only)
-	docker compose -f $(APPS_GROUP_A_FILE) build
+	docker compose -p $(APPS_GROUP_A_PROJECT) -f $(APPS_GROUP_A_FILE) build
 
 # ════════════════════════════════════════════════════════════
 #  Applications — Group B
@@ -135,27 +144,27 @@ group-a-build: ## Build Group A images (local only)
 
 .PHONY: group-b-up
 group-b-up: ## Start Group B services
-	@printf "$(CYAN)▶ Starting Group B ($(ENV)) …$(RESET)\n"
-	docker compose -f $(APPS_GROUP_B_FILE) up -d $(BUILD_FLAG)
+	@printf "$(CYAN)▶ Starting Group B …$(RESET)\n"
+	docker compose -p $(APPS_GROUP_B_PROJECT) -f $(APPS_GROUP_B_FILE) up -d --remove-orphans $(BUILD_FLAG)
 
 .PHONY: group-b-down
 group-b-down: ## Stop Group B services
-	docker compose -f $(APPS_GROUP_B_FILE) down
+	docker compose -p $(APPS_GROUP_B_PROJECT) -f $(APPS_GROUP_B_FILE) down
 
 .PHONY: group-b-restart
 group-b-restart: group-b-down group-b-up ## Restart Group B services
 
 .PHONY: group-b-ps
 group-b-ps: ## Show Group B containers
-	docker compose -f $(APPS_GROUP_B_FILE) ps
+	docker compose -p $(APPS_GROUP_B_PROJECT) -f $(APPS_GROUP_B_FILE) ps
 
 .PHONY: group-b-logs
 group-b-logs: ## Tail Group B logs
-	docker compose -f $(APPS_GROUP_B_FILE) logs -f --tail=50
+	docker compose -p $(APPS_GROUP_B_PROJECT) -f $(APPS_GROUP_B_FILE) logs -f --tail=50
 
 .PHONY: group-b-build
 group-b-build: ## Build Group B images (local only)
-	docker compose -f $(APPS_GROUP_B_FILE) build
+	docker compose -p $(APPS_GROUP_B_PROJECT) -f $(APPS_GROUP_B_FILE) build
 
 # ════════════════════════════════════════════════════════════
 #  Documentation
@@ -163,27 +172,51 @@ group-b-build: ## Build Group B images (local only)
 
 .PHONY: docs-up
 docs-up: ## Start the documentation site
-	@printf "$(CYAN)▶ Starting docs ($(ENV)) …$(RESET)\n"
-	docker compose -f $(DOCS_FILE) up -d $(BUILD_FLAG)
+	@printf "$(CYAN)▶ Starting docs …$(RESET)\n"
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) up -d --remove-orphans $(BUILD_FLAG)
 
 .PHONY: docs-down
 docs-down: ## Stop the documentation site
-	docker compose -f $(DOCS_FILE) down
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) down
 
 .PHONY: docs-restart
 docs-restart: docs-down docs-up ## Restart the documentation site
 
 .PHONY: docs-ps
 docs-ps: ## Show docs containers
-	docker compose -f $(DOCS_FILE) ps
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) ps
 
 .PHONY: docs-logs
 docs-logs: ## Tail docs logs
-	docker compose -f $(DOCS_FILE) logs -f --tail=50
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) logs -f --tail=50
 
 .PHONY: docs-build
 docs-build: ## Build docs image (local only)
-	docker compose -f $(DOCS_FILE) build
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) build
+
+# ════════════════════════════════════════════════════════════
+#  Monitoring (Observability stack)
+# ════════════════════════════════════════════════════════════
+
+.PHONY: monitoring-up
+monitoring-up: network ## Start the monitoring stack (Prometheus, Grafana, Alloy, Loki)
+	@printf "$(CYAN)▶ Starting monitoring …$(RESET)\n"
+	docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) up -d --remove-orphans
+
+.PHONY: monitoring-down
+monitoring-down: ## Stop the monitoring stack
+	docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) down
+
+.PHONY: monitoring-restart
+monitoring-restart: monitoring-down monitoring-up ## Restart the monitoring stack
+
+.PHONY: monitoring-ps
+monitoring-ps: ## Show monitoring containers
+	docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) ps
+
+.PHONY: monitoring-logs
+monitoring-logs: ## Tail monitoring logs
+	docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) logs -f --tail=50
 
 # ════════════════════════════════════════════════════════════
 #  Utilities
@@ -192,37 +225,41 @@ docs-build: ## Build docs image (local only)
 .PHONY: status
 status: ## Show running containers across all compose files
 	@printf "$(BOLD)$(GREEN)── Proxy ──$(RESET)\n"
-	@docker compose -f $(PROXY_FILE) ps 2>/dev/null || true
+	@docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) ps 2>/dev/null || true
 	@printf "$(BOLD)$(GREEN)── Applications ──$(RESET)\n"
-	@docker compose -f $(APPS_FILE) ps 2>/dev/null || true
+	@docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) ps 2>/dev/null || true
 	@printf "$(BOLD)$(GREEN)── Docs ──$(RESET)\n"
-	@docker compose -f $(DOCS_FILE) ps 2>/dev/null || true
+	@docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) ps 2>/dev/null || true
+	@printf "$(BOLD)$(GREEN)── Monitoring ──$(RESET)\n"
+	@docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) ps 2>/dev/null || true
 
 .PHONY: pull
-pull: ## Pull latest images for stage/prod
-	docker compose -f $(APPS_FILE) pull
-	docker compose -f $(DOCS_FILE) pull
+pull: ## Pull latest images
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) pull
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) pull
 
 .PHONY: clean
 clean: all-down ## Stop everything and remove orphan containers, volumes, and images
-	docker compose -f $(PROXY_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
-	docker compose -f $(APPS_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
-	docker compose -f $(DOCS_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
+	docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
+	docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
+	docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
+	docker compose -p $(MONITORING_PROJECT) -f $(MONITORING_FILE) down --volumes --remove-orphans --rmi local 2>/dev/null || true
 	@printf "$(GREEN)✔ Cleaned up all containers, volumes, and local images.$(RESET)\n"
 
 .PHONY: validate
 validate: ## Validate all compose files (docker compose config)
 	@printf "$(CYAN)Validating compose files …$(RESET)\n"
-	@docker compose -f $(PROXY_FILE) config -q && printf "  ✔ $(PROXY_FILE)\n"
-	@docker compose -f $(APPS_FILE) config -q && printf "  ✔ $(APPS_FILE)\n"
-	@docker compose -f $(APPS_GROUP_A_FILE) config -q && printf "  ✔ $(APPS_GROUP_A_FILE)\n"
-	@docker compose -f $(APPS_GROUP_B_FILE) config -q && printf "  ✔ $(APPS_GROUP_B_FILE)\n"
-	@docker compose -f $(DOCS_FILE) config -q && printf "  ✔ $(DOCS_FILE)\n"
+	@docker compose -p $(PROXY_PROJECT) -f $(PROXY_FILE) config -q && printf "  ✔ $(PROXY_FILE)\n"
+	@docker compose -p $(APPS_PROJECT) -f $(APPS_FILE) config -q && printf "  ✔ $(APPS_FILE)\n"
+	@docker compose -p $(APPS_GROUP_A_PROJECT) -f $(APPS_GROUP_A_FILE) config -q && printf "  ✔ $(APPS_GROUP_A_FILE)\n"
+	@docker compose -p $(APPS_GROUP_B_PROJECT) -f $(APPS_GROUP_B_FILE) config -q && printf "  ✔ $(APPS_GROUP_B_FILE)\n"
+	@docker compose -p $(DOCS_PROJECT) -f $(DOCS_FILE) config -q && printf "  ✔ $(DOCS_FILE)\n"
 	@printf "$(GREEN)All compose files valid.$(RESET)\n"
 
 .PHONY: network
-network: ## Create the shared hobby-net network (idempotent)
-	@docker network create orchestrators_hobby-net 2>/dev/null || printf "Network already exists.\n"
+network: ## Create the shared hobby-internal and hobby-external networks (idempotent)
+	@docker network create hobby-internal 2>/dev/null || printf "hobby-internal network already exists.\n"
+	@docker network create hobby-external 2>/dev/null || printf "hobby-external network already exists.\n"
 
 # ════════════════════════════════════════════════════════════
 #  Help
@@ -230,7 +267,7 @@ network: ## Create the shared hobby-net network (idempotent)
 
 .PHONY: help
 help: ## Show this help
-	@printf "$(BOLD)Orchestrators — available targets$(RESET)  (ENV=$(ENV))\n\n"
+	@printf "$(BOLD)Orchestrators — available targets$(RESET)\n\n"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
-	@printf "\nOverride environment:  $(BOLD)make apps-up ENV=stage$(RESET)\n"
+	@printf "\nStage/prod deployments live in infrastructure/platform (ArgoCD + Kubernetes).\n"

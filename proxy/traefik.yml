@@ -2,6 +2,8 @@
 entryPoints:
   web:
     address: ":80"
+  metrics:
+    address: ":8082"
 
 api:
   dashboard: true
@@ -10,6 +12,12 @@ api:
 providers:
   docker:
     exposedByDefault: false
-    network: hobby-net
+    network: hobby-internal
   file:
     filename: /etc/traefik/dynamic.yml
+
+metrics:
+  prometheus:
+    entryPoint: metrics
+
+accessLog: {}

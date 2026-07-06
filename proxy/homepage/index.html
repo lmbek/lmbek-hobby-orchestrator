@@ -23,21 +23,33 @@
     <h1>LMBEK Hobby Platform</h1>
     <p class="subtitle">Local development gateway — all traffic is routed through Traefik.</p>
     <div class="services">
-      <a class="service" href="/api/placeholder1/">
+      <a class="service" href="http://placeholder1-service.localhost/">
         <div class="name">Placeholder1 Service</div>
-        <div class="desc">/api/placeholder1/</div>
+        <div class="desc">placeholder1-service.localhost</div>
       </a>
-      <a class="service" href="/api/placeholder2/">
+      <a class="service" href="http://placeholder2-service.localhost/">
         <div class="name">Placeholder2 Service</div>
-        <div class="desc">/api/placeholder2/</div>
+        <div class="desc">placeholder2-service.localhost</div>
       </a>
-      <a class="service" href="/docs/">
+      <a class="service" href="http://docs.localhost/">
         <div class="name">Documentation</div>
-        <div class="desc">/docs/ — Architecture diagrams (LikeC4)</div>
+        <div class="desc">docs.localhost — Architecture diagrams (LikeC4)</div>
       </a>
-      <a class="service" href="/dashboard/">
+      <a class="service" href="http://proxy.localhost/dashboard/">
         <div class="name">Traefik Dashboard</div>
-        <div class="desc">/dashboard/ — Proxy routing and health</div>
+        <div class="desc">proxy.localhost — Proxy routing and health</div>
+      </a>
+      <a class="service" href="http://grafana.localhost/">
+        <div class="name">Grafana</div>
+        <div class="desc">grafana.localhost — Dashboards and visualization</div>
+      </a>
+      <a class="service" href="http://prometheus.localhost/">
+        <div class="name">Prometheus</div>
+        <div class="desc">prometheus.localhost — Metrics and alerting</div>
+      </a>
+      <a class="service" href="http://alloy.localhost/">
+        <div class="name">Grafana Alloy</div>
+        <div class="desc">alloy.localhost — Telemetry collector</div>
       </a>
     </div>
     <div class="footer">Reverse proxy powered by Traefik</div>

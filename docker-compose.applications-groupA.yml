@@ -1,7 +1,9 @@
-# Application Services (Group A) — local environment.
+# Application Services (Group A)
 # Builds from source for local development.
 # Team A can run only their services without needing Group B.
-# Usage: docker compose -f docker-compose.applications-groupA.local.yml up -d --build
+# Usage: docker compose -f docker-compose.applications-groupA.yml up -d --build
+
+name: group-a
 
 services:
   placeholder1-service:
@@ -9,11 +11,13 @@ services:
     build:
       context: ../applications/placeholder1-service
       dockerfile: Dockerfile
+    environment:
+      - ENABLE_TRAFFIC_SIMULATOR=${ENABLE_TRAFFIC_SIMULATOR:-false}
     restart: unless-stopped
     networks:
-      - hobby-net
+      - hobby-internal
 
 networks:
-  hobby-net:
+  hobby-internal:
     external: true
-    name: orchestrators_hobby-net
+    name: hobby-internal

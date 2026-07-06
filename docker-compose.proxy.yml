@@ -1,20 +1,23 @@
-# Reverse Proxy (Traefik) — local environment only.
+# Reverse Proxy (Traefik)
 # Routes all incoming traffic to the appropriate service.
-# Usage: docker compose -f docker-compose.proxy.local.yml up -d
+# Usage: docker compose -f docker-compose.proxy.yml up -d
+
+name: proxy
 
 services:
   proxy:
-    image: traefik:v3.4
+    image: traefik:v3.6
     ports:
       - "80:80"
-      - "8080:8080"
+      - "8082:8082"
     volumes:
       - ./proxy/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./proxy/dynamic.yml:/etc/traefik/dynamic.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
     networks:
-      - hobby-net
+      - hobby-internal
+      - hobby-external
 
   proxy-homepage:
     image: nginx:alpine
@@ -22,8 +25,12 @@ services:
       - ./proxy/homepage:/usr/share/nginx/html:ro
     restart: unless-stopped
     networks:
-      - hobby-net
+      - hobby-internal
 
 networks:
-  hobby-net:
-    driver: bridge
+  hobby-internal:
+    name: hobby-internal
+    external: true
+  hobby-external:
+    name: hobby-external
+    external: true

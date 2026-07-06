@@ -1,6 +1,8 @@
-# Application Services — local environment.
+# Application Services
 # Builds from source for local development.
-# Usage: docker compose -f docker-compose.applications.local.yml up -d --build
+# Usage: docker compose -f docker-compose.applications.yml up -d --build
+
+name: apps
 
 services:
   placeholder1-service:
@@ -8,20 +10,24 @@ services:
     build:
       context: ../applications/placeholder1-service
       dockerfile: Dockerfile
+    environment:
+      - ENABLE_TRAFFIC_SIMULATOR=${ENABLE_TRAFFIC_SIMULATOR:-false}
     restart: unless-stopped
     networks:
-      - hobby-net
+      - hobby-internal
 
   placeholder2-service:
     image: lmbek-hobby-placeholder2-service:latest
     build:
       context: ../applications/placeholder2-service
       dockerfile: Dockerfile
+    environment:
+      - ENABLE_TRAFFIC_SIMULATOR=${ENABLE_TRAFFIC_SIMULATOR:-false}
     restart: unless-stopped
     networks:
-      - hobby-net
+      - hobby-internal
 
 networks:
-  hobby-net:
+  hobby-internal:
     external: true
-    name: orchestrators_hobby-net
+    name: hobby-internal

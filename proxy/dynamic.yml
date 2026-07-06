@@ -2,40 +2,65 @@
 http:
   routers:
     placeholder1:
-      rule: "PathPrefix(`/api/placeholder1`)"
+      rule: "Host(`placeholder1-service.localhost`)"
       service: placeholder1
       entryPoints:
         - web
 
     placeholder2:
-      rule: "PathPrefix(`/api/placeholder2`)"
+      rule: "Host(`placeholder2-service.localhost`)"
       service: placeholder2
       entryPoints:
         - web
 
     docs:
-      rule: "PathPrefix(`/docs`)"
+      rule: "Host(`docs.localhost`)"
       service: docs
       entryPoints:
         - web
 
     proxy-homepage:
-      rule: "PathPrefix(`/`)"
+      rule: "HostRegexp(`localhost`)"
       service: proxy-homepage
       entryPoints:
         - web
       priority: 1
 
+    traefik-dashboard:
+      rule: "Host(`proxy.localhost`)"
+      service: api@internal
+      entryPoints:
+        - web
+
+    grafana:
+      rule: "Host(`grafana.localhost`)"
+      service: grafana
+      entryPoints:
+        - web
+
+    prometheus:
+      rule: "Host(`prometheus.localhost`)"
+      service: prometheus
+      entryPoints:
+        - web
+
+    alloy:
+      rule: "Host(`alloy.localhost`)"
+      service: alloy
+      entryPoints:
+        - web
+
+
   services:
     placeholder1:
       loadBalancer:
         servers:
-          - url: "http://placeholder1-service:8080"
+          - url: "http://placeholder1-service:8082"
 
     placeholder2:
       loadBalancer:
         servers:
-          - url: "http://placeholder2-service:8080"
+          - url: "http://placeholder2-service:8081"
 
     docs:
       loadBalancer:
@@ -46,3 +71,19 @@ http:
       loadBalancer:
         servers:
           - url: "http://proxy-homepage:80"
+
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"
+
+    prometheus:
+      loadBalancer:
+        servers:
+          - url: "http://prometheus:9090"
+
+    alloy:
+      loadBalancer:
+        servers:
+          - url: "http://alloy:12345"
+

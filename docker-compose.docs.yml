@@ -1,6 +1,8 @@
-# Documentation — local environment.
+# Documentation
 # Builds from source for local development.
-# Usage: docker compose -f docker-compose.docs.local.yml up -d --build
+# Usage: docker compose -f docker-compose.docs.yml up -d --build
+
+name: docs
 
 services:
   docs:
@@ -10,9 +12,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     networks:
-      - hobby-net
+      - hobby-internal
 
 networks:
-  hobby-net:
+  hobby-internal:
     external: true
-    name: orchestrators_hobby-net
+    name: hobby-internal

@@ -1,15 +1,16 @@
 # Application Services
-# Builds from source for local development.
-# Usage: docker compose -f docker-compose.applications.yml up -d --build
+# Local development with source mounting for live reload.
+# Usage: docker compose -f docker-compose.applications.yml up -d
 
 name: apps
 
 services:
   placeholder1-service:
-    image: lmbek-hobby-placeholder1-service:latest
-    build:
-      context: ../applications/placeholder1-service
-      dockerfile: Dockerfile
+    image: golang:1.26-alpine
+    working_dir: /app
+    volumes:
+      - ../applications/placeholder1-service:/app
+    command: go run .
     environment:
       - ENABLE_TRAFFIC_SIMULATOR=${ENABLE_TRAFFIC_SIMULATOR:-false}
     restart: unless-stopped
@@ -17,10 +18,11 @@ services:
       - hobby-internal
 
   placeholder2-service:
-    image: lmbek-hobby-placeholder2-service:latest
-    build:
-      context: ../applications/placeholder2-service
-      dockerfile: Dockerfile
+    image: golang:1.26-alpine
+    working_dir: /app
+    volumes:
+      - ../applications/placeholder2-service:/app
+    command: go run .
     environment:
       - ENABLE_TRAFFIC_SIMULATOR=${ENABLE_TRAFFIC_SIMULATOR:-false}
     restart: unless-stopped

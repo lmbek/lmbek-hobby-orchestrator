@@ -2,6 +2,11 @@
 entryPoints:
   web:
     address: ":80"
+    transport:
+      respondingTimeouts:
+        readTimeout: 2s
+        writeTimeout: 2s
+        idleTimeout: 30s
   metrics:
     address: ":8082"
 

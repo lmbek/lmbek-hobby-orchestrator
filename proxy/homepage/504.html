@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>504 — Gateway Timeout | LMBEK Hobby Platform</title>
+  <meta http-equiv="refresh" content="30">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg-primary: #050a18;
+      --bg-secondary: #0a1628;
+      --bg-card: #0d1b2e;
+      --border: #1a2d4a;
+      --text-primary: #f0f4fc;
+      --text-secondary: #8899b8;
+      --text-muted: #4a5f82;
+      --accent-amber: #f59e0b;
+      --accent-orange: #f97316;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-rose: #f43f5e;
+      --glow-amber: rgba(245, 158, 11, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Animated background */
+    .bg-effects {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-effects::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 60%, rgba(249, 115, 22, 0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+      animation: bgShift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgShift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-2%, 3%) scale(1.02); }
+      100% { transform: translate(2%, -2%) scale(1); }
+    }
+
+    /* Grid pattern overlay */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* Main content */
+    .main {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* Glitching error code */
+    .error-code {
+      font-size: clamp(6rem, 15vw, 10rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      position: relative;
+      background: linear-gradient(135deg, var(--accent-amber) 0%, var(--accent-orange) 50%, var(--accent-amber) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientMove 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 40px var(--glow-amber));
+    }
+
+    .error-code::before,
+    .error-code::after {
+      content: '504';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .error-code::before {
+      animation: glitch1 3s infinite;
+      clip-path: inset(0 0 65% 0);
+    }
+
+    .error-code::after {
+      animation: glitch2 3s infinite;
+      clip-path: inset(65% 0 0 0);
+    }
+
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes glitch1 {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(4px, -2px); }
+      94% { transform: translate(-3px, 1px); }
+      96% { transform: translate(2px, 2px); }
+      98% { transform: translate(-2px, -1px); }
+    }
+
+    @keyframes glitch2 {
+      0%, 90%, 100% { transform: translate(0); }
+      91% { transform: translate(-3px, 2px); }
+      93% { transform: translate(4px, -1px); }
+      95% { transform: translate(-2px, -2px); }
+      97% { transform: translate(3px, 1px); }
+    }
+
+    /* Pulsing warning icon */
+    .warning-icon {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      animation: pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.4));
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    /* Title */
+    .title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Subtitle / description */
+    .description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto 2rem;
+    }
+
+    /* Info card */
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .info-card h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-amber);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .info-card li {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      line-height: 1.5;
+    }
+
+    .info-card li::before {
+      content: '›';
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Countdown / auto-refresh */
+    .refresh-bar {
+      margin-bottom: 2rem;
+    }
+
+    .refresh-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 3px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-amber), var(--accent-orange));
+      border-radius: 3px;
+      animation: countdown 30s linear infinite;
+      box-shadow: 0 0 8px var(--glow-amber);
+    }
+
+    @keyframes countdown {
+      0% { width: 100%; }
+      100% { width: 0%; }
+    }
+
+    /* Action button */
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, var(--accent-amber), var(--accent-orange));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
+    }
+
+    .retry-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Spinning icon on button */
+    .retry-btn .icon {
+      display: inline-block;
+      transition: transform 0.4s ease;
+    }
+
+    .retry-btn:hover .icon {
+      transform: rotate(180deg);
+    }
+
+    /* Footer / tech info */
+    .footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    /* Animated scan line */
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent-amber) 50%, transparent 100%);
+      opacity: 0.4;
+      z-index: 2;
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { top: -2px; }
+      100% { top: 100vh; }
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .main { padding: 1.5rem; }
+      .error-code { font-size: 5rem; }
+      .info-card { padding: 1.25rem; }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .fade-in:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in:nth-child(3) { animation-delay: 0.2s; }
+    .fade-in:nth-child(4) { animation-delay: 0.3s; }
+    .fade-in:nth-child(5) { animation-delay: 0.4s; }
+    .fade-in:nth-child(6) { animation-delay: 0.5s; }
+    .fade-in:nth-child(7) { animation-delay: 0.6s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-effects"></div>
+  <div class="grid-overlay"></div>
+  <div class="scanline"></div>
+
+  <!-- Floating particles -->
+  <div class="particle" style="width:3px;height:3px;background:rgba(245,158,11,0.4);left:10%;animation-duration:12s;animation-delay:0s;"></div>
+  <div class="particle" style="width:2px;height:2px;background:rgba(249,115,22,0.5);left:25%;animation-duration:16s;animation-delay:2s;"></div>
+  <div class="particle" style="width:4px;height:4px;background:rgba(139,92,246,0.3);left:40%;animation-duration:14s;animation-delay:4s;"></div>
+  <div class="particle" style="width:2px;height:2px;background:rgba(245,158,11,0.5);left:55%;animation-duration:18s;animation-delay:1s;"></div>
+  <div class="particle" style="width:3px;height:3px;background:rgba(249,115,22,0.4);left:70%;animation-duration:13s;animation-delay:3s;"></div>
+  <div class="particle" style="width:2px;height:2px;background:rgba(6,182,212,0.4);left:85%;animation-duration:15s;animation-delay:5s;"></div>
+  <div class="particle" style="width:3px;height:3px;background:rgba(139,92,246,0.4);left:95%;animation-duration:17s;animation-delay:6s;"></div>
+
+  <div class="main">
+    <div class="fade-in warning-icon">⏱️</div>
+
+    <div class="fade-in error-code">504</div>
+
+    <div class="fade-in title">Gateway Timeout</div>
+
+    <p class="fade-in description">
+      The server didn't respond in time. The upstream service is taking too long
+      to process the request — it may be under heavy load or temporarily unresponsive.
+    </p>
+
+    <div class="fade-in info-card">
+      <h3>⏳ What could be going on?</h3>
+      <ul>
+        <li>The upstream service is still starting up or warming its caches</li>
+        <li>A long-running operation exceeded the proxy's timeout limit</li>
+        <li>The service might be experiencing high traffic or resource pressure</li>
+        <li>This page will automatically refresh every 30 seconds</li>
+      </ul>
+    </div>
+
+    <div class="fade-in refresh-bar">
+      <div class="refresh-text">Auto-refresh in 30s</div>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="fade-in">
+      <button onclick="location.reload()" class="retry-btn">
+        <span class="icon">⟳</span>
+        Try Again
+      </button>
+    </div>
+
+    <div class="fade-in footer">
+      <span class="footer-badge">⚡ LMBEK Hobby Platform • Reverse Proxy Error Page</span>
+    </div>
+  </div>
+
+  <script>
+    // Live countdown text
+    (function() {
+      let seconds = 30;
+      const el = document.querySelector('.refresh-text');
+      setInterval(function() {
+        seconds--;
+        if (seconds <= 0) seconds = 30;
+        el.textContent = 'Auto-refresh in ' + seconds + 's';
+      }, 1000);
+    })();
+  </script>
+
+</body>
+</html>
